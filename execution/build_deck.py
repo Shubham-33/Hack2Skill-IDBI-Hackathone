@@ -275,11 +275,11 @@ body(slides[11], [
 # ---------------------------------------------------------------- Slide 13 — Links
 body(slides[12], [
     {"t": "GitHub Public Repository", "sz": 13, "bold": True, "color": GREEN, "space": 2},
-    {"t": "[ paste after pushing — e.g. https://github.com/<your-username>/prospect-assist-ai ]", "sz": 12, "color": SLATE, "space": 12},
-    {"t": "Demo Video Link (3 minutes)", "sz": 13, "bold": True, "color": GREEN, "space": 2},
-    {"t": "[ paste your unlisted YouTube / Drive link — script in DEMO_RUNBOOK.md ]", "sz": 12, "color": SLATE, "space": 12},
+    {"t": "https://github.com/Shubham-33/Hack2Skill-IDBI-Hackathone", "sz": 13, "color": SLATE, "space": 12},
     {"t": "Final Product Link (live prototype)", "sz": 13, "bold": True, "color": GREEN, "space": 2},
-    {"t": "[ paste deployment URL — one-click deploy steps in DEPLOY.md ]", "sz": 12, "color": SLATE},
+    {"t": "https://prospect-assist-ai-2guf.onrender.com", "sz": 13, "color": SLATE, "space": 12},
+    {"t": "Demo Video Link (3 minutes)", "sz": 13, "bold": True, "color": GREEN, "space": 2},
+    {"t": "[ paste your unlisted YouTube / Drive link — 3-min script in DEMO_RUNBOOK.md ]", "sz": 12, "color": GREY},
 ], top=2.35, height=3.0)
 
 # ---------------------------------------------------------------- Slide 15 — Closing
