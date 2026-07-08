@@ -45,7 +45,7 @@ def text(slide, l, t, w, h, runs, align=PP_ALIGN.LEFT, anchor=None, line_spacing
             r = p.add_run(); r.text = d["t"]
             r.font.size = Pt(d.get("sz", 12)); r.font.bold = d.get("bold", False)
             r.font.italic = d.get("italic", False)
-            r.font.color.rgb = d.get("color", INK); r.font.name = "Calibri"
+            r.font.color.rgb = d.get("color", INK); r.font.name = "Arial"
     return tb
 
 
@@ -73,7 +73,7 @@ def style_title(slide, accent=True):
         if 0.7 <= top <= 0.95 and wid > 8 and sh.text_frame.text.strip():
             paras = sh.text_frame.paragraphs
             for r in paras[0].runs:
-                r.font.size = Pt(23); r.font.bold = True; r.font.color.rgb = DEEP; r.font.name = "Calibri"
+                r.font.size = Pt(23); r.font.bold = True; r.font.color.rgb = DEEP; r.font.name = "Arial"
             for p in paras[1:]:
                 for r in p.runs:
                     r.font.size = Pt(10.5); r.font.bold = False; r.font.color.rgb = GREY
@@ -111,7 +111,7 @@ def obox(slide, l, t, w, h, txt, border=HAIR, tcolor=INK, sz=10.5, bold=False, f
     tf.margin_left = tf.margin_right = Inches(0.06); tf.margin_top = tf.margin_bottom = Inches(0.02)
     p = tf.paragraphs[0]; p.alignment = PP_ALIGN.CENTER
     r = p.add_run(); r.text = txt; r.font.size = Pt(sz); r.font.bold = bold
-    r.font.color.rgb = tcolor; r.font.name = "Calibri"
+    r.font.color.rgb = tcolor; r.font.name = "Arial"
     return sp
 
 
