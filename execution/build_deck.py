@@ -170,8 +170,8 @@ def picture(slide, path, l, t, max_w, max_h, border=GREEN):
 s = slides[0]
 for shp in s.shapes:
     if shp.has_text_frame and shp.text_frame.text.strip().startswith("Team Details"):
-        vals = {"Team name:": "  [ your team name ]",
-                "Team leader name:": "  [ your name ]",
+        vals = {"Team name:": "  Black Bulls",
+                "Team leader name:": "  Shubham",
                 "Problem Statement:": "  Open Track — AI copilot for channel-sourced retail lending "
                 "(conversational AI · product advisory · financial-health scoring · default prediction)"}
         for p in shp.text_frame.paragraphs:
