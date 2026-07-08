@@ -1,0 +1,33 @@
+name: Keep-alive (wake Render free instance)
+
+# Pings the deployed app so Render's free tier never idles into sleep.
+# One-time setup: repo → Settings → Secrets and variables → Actions → Variables
+#   → New repository variable:  name = APP_URL  value = https://your-app.onrender.com
+# (No value set = the job skips quietly, so no failure emails.)
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every ~10 min (Render sleeps after 15 min idle)
+  workflow_dispatch:          # manual "Run workflow" button
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health
+        env:
+          URL: ${{ vars.APP_URL }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "APP_URL repo variable not set — skipping."
+            echo "Add it in Settings > Secrets and variables > Actions > Variables."
+            exit 0
+          fi
+          echo "Pinging ${URL%/}/health"
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "${URL%/}/health" || true)
+          echo "HTTP $code"
+          if [ "$code" = "200" ]; then
+            echo "awake ✅"
+          else
+            echo "non-200 (likely cold start) — will retry next run, not failing the job"
+          fi

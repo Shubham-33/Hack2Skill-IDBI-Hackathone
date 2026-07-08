@@ -50,6 +50,15 @@ gcloud run deploy prospect-assist-ai --source . --region asia-south1 \
 curl https://<your-url>/health          # {"ok": true, ...}
 ```
 
+### Keep it awake (Render free tier sleeps after ~15 min idle)
+A GitHub Actions keep-alive is already committed at `.github/workflows/keepalive.yml`. Turn it on:
+1. Repo → **Settings → Secrets and variables → Actions → Variables → New repository variable**
+2. Name `APP_URL`, value your deployed URL (e.g. `https://prospect-assist-ai.onrender.com`).
+
+It then pings `/health` every ~10 min so the instance stays warm through judging. (No variable set = it skips quietly.) You can also trigger it manually from the **Actions** tab → *Keep-alive* → *Run workflow*.
+
+*Alternative:* [UptimeRobot](https://uptimerobot.com) free monitor on `/health` at a 5-min interval — the most reliable option.
+
 → Paste the URL into deck slide 13 (**Final Product Link**) and the portal.
 
 **Test the container locally first (optional):**
