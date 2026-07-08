@@ -1,0 +1,59 @@
+{# fragment injected into the dashboard side panel #}
+<div class="sticky top-20">
+<div class="flex items-start justify-between">
+  <div>
+    <h2 class="text-lg font-bold text-idbi-dark">{{ prospect.name }}</h2>
+    <p class="text-xs text-slate-500">{{ prospect.city }} · {{ prospect.occupation }} · CIBIL {{ prospect.credit_score }}</p>
+  </div>
+  <div class="text-right">
+    <div class="text-2xl font-extrabold text-idbi">{{ (rec.propensity.propensity*100)|round|int }}%</div>
+    <div class="text-xs text-slate-500">P(convert) · {{ rec.propensity.tier }}</div>
+  </div>
+</div>
+<p class="mt-1 text-xs bg-idbi-light/60 rounded px-2 py-1 text-idbi-dark"><b>Why ranked here:</b> {{ rec.propensity.reason }}</p>
+
+<!-- Instant decision -->
+{% set tone = decision.tone %}
+<div class="mt-3 rounded-lg p-3 {{ 'bg-emerald-50 border border-emerald-200' if tone=='approve' else 'bg-amber-50 border border-amber-200' if tone=='refer' else 'bg-rose-50 border border-rose-200' }}">
+  <div class="flex justify-between items-center">
+    <span class="font-bold {{ 'text-emerald-700' if tone=='approve' else 'text-amber-700' if tone=='refer' else 'text-rose-700' }}">{{ decision.verdict }}</span>
+    <span class="text-xs text-slate-500">risk: {{ decision.default_risk_band }}</span>
+  </div>
+  <div class="text-xs text-slate-600 mt-1">Indicative: ₹{{ '{:,}'.format(decision.indicative_amount) }} @ {{ decision.indicative_rate }}% · EMI ₹{{ '{:,.0f}'.format(decision.indicative_emi) }}/mo</div>
+</div>
+
+<!-- Health breakdown -->
+<div class="mt-3">
+  <div class="flex justify-between text-sm"><span class="font-semibold">Financial Health</span>
+    <span class="font-bold">{{ health.score }}/100 · {{ health.band }}</span></div>
+  <div class="mt-1 space-y-1">
+    {% for b in health.breakdown %}
+    <div class="flex items-center gap-2 text-xs">
+      <span class="w-32 text-slate-500">{{ b.factor }}</span>
+      <div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-idbi h-2 rounded" style="width: {{ b.sub_score }}%"></div></div>
+      <span class="w-8 text-right">{{ b.sub_score }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Recommendation -->
+<div class="mt-3">
+  <div class="text-sm font-semibold mb-1">Recommended products</div>
+  {% for rr in rec.recommendations %}
+  <div class="border rounded-lg p-2 mb-1.5 text-xs">
+    <div class="flex justify-between"><span class="font-semibold">{{ rr.eligibility.product_name }}</span>
+      <span class="pill {{ 'bg-emerald-100 text-emerald-700' if rr.eligibility.decision=='eligible' else 'bg-amber-100 text-amber-700' }}">{{ rr.eligibility.decision }}</span></div>
+    <div class="text-slate-500 mt-0.5">{{ rr.rationale }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="mt-3 flex gap-2 text-xs text-slate-500">
+  <span>Source: <b>{{ partner.name }}</b> ({{ partner.type }})</span> ·
+  <span>Tier: <b>{{ partner_tier.tier }}</b></span> ·
+  <span>SLA: <b>{{ tat.sla_state }}</b></span>
+</div>
+
+<a href="/offer/{{ prospect.id }}" class="mt-3 block text-center bg-idbi text-white rounded-lg py-2 font-semibold hover:bg-idbi-dark">Create Offer →</a>
+</div>

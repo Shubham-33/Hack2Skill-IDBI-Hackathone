@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold text-idbi-dark">Submit Lead — Instant In-Principle Decision</h1>
+<p class="text-sm text-slate-500 mb-4">Partner view: submit a lead and get an <b>instant indicative decision</b> to relay to the customer on the spot. Winning the TAT battle.</p>
+
+<div class="grid grid-cols-12 gap-4">
+  <div class="col-span-6 bg-white rounded-xl shadow-sm p-5">
+    <form id="leadForm" class="space-y-3">
+      <label class="block text-sm">Sourcing Partner
+        <select name="partner_id" class="w-full border rounded px-2 py-1.5 mt-1">
+          {% for p in partners %}<option value="{{ p.id }}">{{ p.name }} ({{ p.type }})</option>{% endfor %}
+        </select></label>
+      <label class="block text-sm">Customer name
+        <input name="name" value="Ramesh Kumar" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+      <label class="block text-sm">Product
+        <select name="product_id" class="w-full border rounded px-2 py-1.5 mt-1">
+          {% for pid, p in products.items() %}<option value="{{ pid }}">{{ p.name }}</option>{% endfor %}
+        </select></label>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block text-sm">Loan amount (₹)<input name="amount" type="number" value="1500000" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+        <label class="block text-sm">Monthly income (₹)<input name="monthly_income" type="number" value="85000" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+        <label class="block text-sm">CIBIL score<input name="credit_score" type="number" value="745" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+        <label class="block text-sm">Existing EMI (₹)<input name="existing_emi" type="number" value="12000" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+        <label class="block text-sm">Monthly bounces<input name="bounces" type="number" value="0" class="w-full border rounded px-2 py-1.5 mt-1"></label>
+        <label class="block text-sm">Regular salary?
+          <select name="regular_salary" class="w-full border rounded px-2 py-1.5 mt-1"><option value="yes">Yes</option><option value="no">No</option></select></label>
+      </div>
+      <button onclick="submitLead(event)" class="w-full bg-idbi text-white rounded-lg py-2.5 font-semibold hover:bg-idbi-dark">⚡ Get Instant Decision</button>
+    </form>
+  </div>
+
+  <div class="col-span-6">
+    <div id="result" class="bg-white rounded-xl shadow-sm p-6 text-center text-slate-400 text-sm">
+      Submit a lead to see the instant indicative decision, SLA promise and partner tier.
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+async function submitLead(e){
+  e.preventDefault();
+  const form=document.getElementById('leadForm');
+  const res=document.getElementById('result');
+  res.innerHTML='<div class="py-10 text-slate-400">Deciding…</div>';
+  const t0=performance.now();
+  const r=await fetch('/submit',{method:'POST',body:new FormData(form)});
+  const j=await r.json(); const ms=Math.round(performance.now()-t0);
+  const d=j.decision, t=j.tier;
+  const tone=d.tone==='approve'?'emerald':d.tone==='refer'?'amber':'rose';
+  res.innerHTML=`
+    <div class="text-left">
+      <div class="rounded-lg p-4 bg-${tone}-50 border border-${tone}-200">
+        <div class="text-lg font-bold text-${tone}-700">${d.verdict}</div>
+        <div class="text-sm text-slate-600 mt-1">${d.product_name}</div>
+        <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+          <div><div class="text-lg font-extrabold text-idbi">₹${d.indicative_amount.toLocaleString('en-IN')}</div><div class="text-xs text-slate-500">Amount</div></div>
+          <div><div class="text-lg font-extrabold text-idbi">${d.indicative_rate}%</div><div class="text-xs text-slate-500">Rate</div></div>
+          <div><div class="text-lg font-extrabold text-idbi">₹${Math.round(d.indicative_emi).toLocaleString('en-IN')}</div><div class="text-xs text-slate-500">EMI/mo</div></div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3 text-xs">
+        <span class="pill bg-slate-100">Conversion: ${d.conversion_tier}</span>
+        <span class="pill bg-slate-100">Default risk: ${d.default_risk_band}</span>
+        <span class="pill bg-idbi-light text-idbi-dark">Decided in ${ms} ms</span>
+      </div>
+      ${(d.adverse_action_codes && d.adverse_action_codes.length) ? `<div class="mt-2 text-xs bg-amber-50 border border-amber-200 rounded p-2 text-amber-800"><b>Principal reason codes (adverse action):</b><br>${d.adverse_action_codes.map(a=>'• '+a).join('<br>')}</div>` : ''}
+      <div class="mt-3 text-sm"><b>Partner tier:</b> ${t.tier} · +${t.commission_boost_pct}% commission · payout ${t.payout_days}d · SLA ${t.sla_hours}h</div>
+      <div class="mt-2 text-xs text-slate-500"><b>Next steps:</b> ${d.next_steps.join(' • ')}</div>
+      <div class="mt-2 text-xs italic text-slate-400">${d.disclaimer}</div>
+      <div class="mt-4 flex gap-2">
+        <button onclick="saveLead(event)" class="flex-1 border border-idbi text-idbi rounded-lg py-2.5 font-semibold hover:bg-idbi-light">💾 Save to Pipeline</button>
+        <button onclick="genLeadPdf(event)" class="flex-1 bg-idbi text-white rounded-lg py-2.5 font-semibold hover:bg-idbi-dark">📄 Generate PDF Offer</button>
+      </div>
+      <div id="saveMsg" class="mt-2 text-sm"></div>
+    </div>`;
+}
+async function saveLead(e){
+  e.preventDefault();
+  const btn=e.target, label=btn.textContent; btn.textContent='Saving…'; btn.disabled=true;
+  try{
+    const r=await fetch('/lead/save',{method:'POST',body:new FormData(document.getElementById('leadForm'))});
+    const j=await r.json();
+    document.getElementById('saveMsg').innerHTML=`✅ Saved as <b>${j.id}</b> — now ranked in the <a class="text-idbi underline" href="${j.url}">pipeline</a>.`;
+  }catch(err){ alert('Could not save the lead.'); }
+  finally{ btn.textContent=label; btn.disabled=false; }
+}
+async function genLeadPdf(e){
+  e.preventDefault();
+  const btn=e.target, label=btn.textContent; btn.textContent='Generating…'; btn.disabled=true;
+  try{
+    const r=await fetch('/submit/pdf',{method:'POST',body:new FormData(document.getElementById('leadForm'))});
+    if(!r.ok) throw new Error();
+    const blob=await r.blob(); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener';
+    a.download='IDBI_Offer.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+  }catch(err){ alert('Could not generate the PDF.'); }
+  finally{ btn.textContent=label; btn.disabled=false; }
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prospect Assist AI — Pitch</title>
+<style>
+  :root{ --idbi:#0a7d6b; --dark:#0a3d33; --accent:#0f9d5a; --ink:#1f2933; --muted:#64748b; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:#0a3d33;overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+    padding:6vh 8vw;background:#f4f7f6;opacity:0;transition:opacity .3s}
+  .slide.on{display:flex;opacity:1}
+  .slide.title{background:linear-gradient(135deg,#0a3d33,#0a7d6b);color:#fff}
+  .kicker{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--idbi);font-weight:700;margin-bottom:14px}
+  .title .kicker{color:#8fe3d0}
+  h1{font-size:52px;line-height:1.05;font-weight:800;margin-bottom:14px}
+  h2{font-size:34px;font-weight:800;color:var(--dark);margin-bottom:22px}
+  .lead{font-size:22px;color:var(--muted);max-width:60ch}
+  .title .lead{color:#cdeee6}
+  .row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px}
+  .card{background:#fff;border:1px solid #e4e7eb;border-radius:14px;padding:22px 24px;flex:1;min-width:220px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  .card h3{font-size:19px;color:var(--idbi);margin-bottom:8px}
+  .card p{font-size:15px;color:var(--muted);line-height:1.5}
+  .big{font-size:44px;font-weight:800;color:var(--idbi)}
+  .stat{text-align:center;flex:1;min-width:150px}
+  .stat .n{font-size:40px;font-weight:800;color:var(--idbi)}
+  .stat .l{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  ul{margin:8px 0 0 4px;list-style:none}
+  li{font-size:19px;margin:12px 0;padding-left:30px;position:relative;color:#334}
+  li:before{content:"→";position:absolute;left:0;color:var(--accent);font-weight:800}
+  .badges{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+  .badge{background:var(--idbi);color:#fff;border-radius:999px;padding:10px 20px;font-weight:600;font-size:16px}
+  .badge.alt{background:#fff;color:var(--idbi);border:2px solid var(--idbi)}
+  .four{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px}
+  .four .card h3{font-size:17px}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:15px}
+  .chip{background:#fff;border:1px solid #cfe6df;border-radius:10px;padding:10px 14px;font-weight:600}
+  .chip.eng{background:var(--idbi);color:#fff;border-color:var(--idbi)}
+  .arrow{color:var(--accent);font-weight:800}
+  .foot{position:absolute;bottom:24px;left:8vw;right:8vw;display:flex;justify-content:space-between;
+    align-items:center;font-size:13px;color:var(--muted)}
+  .title .foot{color:#9fd6c9}
+  .dots{display:flex;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#cbd5d1;cursor:pointer}
+  .dot.on{background:var(--idbi);width:22px;border-radius:5px}
+  .nav{position:absolute;bottom:18px;right:8vw;display:flex;gap:8px;z-index:5}
+  .nav button{border:none;background:var(--idbi);color:#fff;width:38px;height:38px;border-radius:9px;font-size:18px;cursor:pointer}
+  .tag{display:inline-block;margin-top:18px;font-size:26px;font-weight:700;color:#8fe3d0}
+  .mut{color:var(--muted);font-size:15px}
+  .hl{color:var(--idbi);font-weight:700}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide title on">
+    <div class="kicker">IDBI Innovate 2026 · IDBI Bank × Hack2skill</div>
+    <h1>Prospect Assist AI</h1>
+    <div class="lead">The AI channel-and-relationship intelligence layer on top of the bank's lending stack.</div>
+    <div class="tag">“Lend faster, safer, and win partner loyalty.”</div>
+    <div class="foot"><span>Open Track · Build. Integrate. Transform.</span><span>Team Prospect Assist</span></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="kicker">The Problem</div>
+    <h2>Retail lending runs on the channel — and it's leaking</h2>
+    <div class="lead" style="margin-bottom:18px">Most loans aren't walk-ins. They're sourced through <span class="hl">DSAs, dealers &amp; connectors</span>, and that business runs on <span class="hl">TAT and relationships</span>.</div>
+    <div class="row">
+      <div class="card"><h3>RM wastes time</h3><p>No idea who to call first; manual research; generic pitches; slow, inconsistent collateral.</p></div>
+      <div class="card"><h3>Customer is ignored</h3><p>Irrelevant offers they can't get; unclear terms; slow answers → they go to a faster lender.</p></div>
+      <div class="card"><h3>Channel bleeds</h3><p>Payout leakage &amp; disputes, <span class="hl">adverse selection</span> (DSAs push high-default loans), duplicates, silent partner churn.</p></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="kicker">Our Solution</div>
+    <h2>A copilot that works all four sides at once</h2>
+    <div class="four">
+      <div class="card"><h3>👤 Customer</h3><p>Only eligible, fit-ranked offers · instant indicative decision · professional PDF.</p></div>
+      <div class="card"><h3>🧑‍💼 RM</h3><p>ML-ranked queue · auto health score &amp; eligibility · one-click editable PDF offer.</p></div>
+      <div class="card"><h3>🏦 Bank</h3><p>Conversion ↑, NPA ↓, payout leakage → 0, channel-mix ROI.</p></div>
+      <div class="card"><h3>🤝 Channel Partner</h3><p>Instant decisions, live SLA, fair fast payouts, tiering — <span class="hl">the moat</span>.</p></div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="kicker">Coverage</div>
+    <h2>One product, four problem statements</h2>
+    <div class="badges">
+      <span class="badge">Conversational AI</span>
+      <span class="badge">Wealth Advisory</span>
+      <span class="badge">Financial Health Scoring</span>
+      <span class="badge">Default Prediction / ML</span>
+    </div>
+    <ul style="margin-top:26px">
+      <li>Agentic RM copilot — create leads, pull any detail, generate offers, in natural language</li>
+      <li>Next-best-product recommendation from a deterministic eligibility + ML fit engine</li>
+      <li>Explainable 0–100 financial-health score driving eligibility &amp; terms</li>
+      <li>Two trained ML models — conversion propensity <b>and</b> partner-aware default risk</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="kicker">How it works</div>
+    <h2>3-layer architecture · numbers never hallucinated</h2>
+    <div class="flow">
+      <span class="chip">Directives (SOPs)</span><span class="arrow">→</span>
+      <span class="chip">AI Orchestration (LLM)</span><span class="arrow">→</span>
+      <span class="chip eng">Deterministic Engine + ML</span>
+    </div>
+    <div class="row" style="margin-top:26px">
+      <div class="card"><h3>Engine owns every number</h3><p>Eligibility, rate, EMI, commission, clawback, health score — auditable &amp; reproducible.</p></div>
+      <div class="card"><h3>ML owns prediction</h3><p>Conversion propensity &amp; partner default risk. The PD feeds <b>risk-based pricing</b> — higher-risk leads auto-loaded within the approved band.</p></div>
+      <div class="card"><h3>LLM only phrases</h3><p>Recommendations, pitches, PDF copy, chat. De-identified input; compliance-checked output.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="kicker">The Intelligence</div>
+    <h2>Two real models — including a novel adverse-selection detector</h2>
+    <div class="row">
+      <div class="card"><h3>Conversion Propensity</h3><div class="big">{{ (d.prop_auc*100)|round|int }}%</div><p class="mut">AUC · Gini {{ d.prop_gini }} · ranks the queue by P(convert) with transparent up/down drivers per lead.</p></div>
+      <div class="card"><h3>Partner Default-Risk</h3><div class="big">{{ (d.risk_auc*100)|round|int }}%</div><p class="mut">AUC · Gini {{ d.risk_gini }} · adds the sourcing partner's track record to catch adverse selection <b>before</b> disbursal. Bayesian shrinkage keeps it fair to small DSAs.</p></div>
+    </div>
+    <p class="mut" style="margin-top:20px">Reported as <b>Gini</b> (= 2·AUC−1), the metric bank model-risk teams cite. Every score ships <b>per-decision reason codes</b> (occlusion attribution) — and a declined lead gets <b>Reg-B / RBI adverse-action reason codes</b>. No black box. <b>Figures are on synthetic data (indicative)</b>; in production the models retrain on IDBI's real conversion + NPA history. Partner history is a real but secondary signal — no target leakage. The queue ranks by <b>risk-adjusted value</b> = P(convert) × (net interest income − expected credit loss), so a loan that would convert but destroy value is correctly down-ranked.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <div class="kicker">The Moat</div>
+    <h2>Partner Relationship &amp; TAT engine</h2>
+    <div class="four">
+      <div class="card"><h3>⚡ Instant decision</h3><p>Indicative sanction the moment a DSA submits — win the TAT battle on the spot.</p></div>
+      <div class="card"><h3>⏱️ Live SLA clock</h3><p>Full pipeline visibility, auto-escalation on breach. Ends the black box.</p></div>
+      <div class="card"><h3>🏅 Partner tiering</h3><p>Quality → Silver/Gold/Platinum → better slabs, priority, faster payout.</p></div>
+      <div class="card"><h3>📉 Churn early-warning</h3><p>Spot a disengaging DSA and re-engage before they route to a competitor.</p></div>
+    </div>
+    <p class="mut" style="margin-top:16px">Win the partner → more &amp; better volume → the flywheel.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide">
+    <div class="kicker">Live Product</div>
+    <h2>Working today — not slideware</h2>
+    <ul>
+      <li><b>Act 1 · RM dashboard</b> — ranked queue → prospect → editable offer → premium PDF → send</li>
+      <li><b>Act 2 · Channel intelligence</b> — leaderboard, adverse-selection flags, ROI, payouts + clawback</li>
+      <li><b>Act 3 · Partner &amp; TAT</b> — submit a lead → instant decision + SLA + tier</li>
+      <li><b>🤖 AI Copilot</b> — creates leads, answers anything, generates offers — all grounded</li>
+    </ul>
+    <div class="row" style="margin-top:22px">
+      <div class="stat"><div class="n">{{ d.prospects }}</div><div class="l">live leads</div></div>
+      <div class="stat"><div class="n">{{ d.partners }}</div><div class="l">channel partners</div></div>
+      <div class="stat"><div class="n">{{ d.adverse }}</div><div class="l">adverse flagged</div></div>
+      <div class="stat"><div class="n">₹{{ '{:.1f}'.format(d.risk_adj_value/10000000) }}Cr</div><div class="l">risk-adj. value</div></div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <div class="kicker">Impact</div>
+    <h2>The four-way win (illustrative)</h2>
+    <div class="row">
+      <div class="card"><h3>TAT</h3><div class="big">days → hrs</div><p>Instant indicative + auto-scoring.</p></div>
+      <div class="card"><h3>NPA</h3><div class="big">−20–30 bps</div><p>Adverse-selection flagging on the channel book.</p></div>
+      <div class="card"><h3>Payout leakage</h3><div class="big">→ 0</div><p>Deterministic commission + clawback.</p></div>
+      <div class="card"><h3>Partner loyalty</h3><div class="big">↑</div><p>Speed + transparency + recognition.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="kicker">Trust &amp; Roadmap</div>
+    <h2>Compliance-by-design · built to deploy</h2>
+    <div class="row">
+      <div class="card"><h3>Compliant &amp; private</h3><p>RBI digital-lending &amp; DPDP aligned · fair-lending feature exclusions · <b>customer PII stays on-prem/VPC</b> — only non-PII touches the LLM · suitability-first recommendations · rate clamping.</p></div>
+      <div class="card"><h3>Differentiated</h3><p>Not another LOS or DSA portal — the <b>partner-risk + relationship-TAT intelligence layer</b> those systems lack. We sit on top of Lentra/Yubi/LOS, not against them.</p></div>
+      <div class="card"><h3>Roadmap</h3><p>Bureau + KYC hooks · vernacular WhatsApp partner portal · closed-loop retrain on RM outcomes + real NPA data.</p></div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide title">
+    <div class="kicker">Thank you</div>
+    <h1>Prospect Assist AI</h1>
+    <div class="lead">Faster decisions. Fewer defaults. Loyal partners.</div>
+    <div class="tag">Let's make IDBI the bank every partner wants to work with.</div>
+    <div class="foot"><span>Live demo → the running app</span><span>IDBI Innovate 2026</span></div>
+  </section>
+
+  <div class="nav"><button onclick="go(-1)">‹</button><button onclick="go(1)">›</button></div>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')]; let i=0;
+  const dotsWrap=document.createElement('div'); dotsWrap.className='dots';
+  dotsWrap.style.cssText='position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:5';
+  slides.forEach((_,k)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(k);dotsWrap.appendChild(d)});
+  document.getElementById('deck').appendChild(dotsWrap);
+  function show(n){ i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+    [...dotsWrap.children].forEach((d,k)=>d.classList.toggle('on',k===i)); }
+  function go(d){ show(i+d); }
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp')go(-1);
+    if(e.key==='Home')show(0); if(e.key==='End')show(slides.length-1); });
+  document.getElementById('deck').addEventListener('click',e=>{ if(!e.target.closest('.nav,.dots')) go(1); });
+  show(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Partner Portal{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-xl font-bold text-idbi-dark">Partner Portal — WhatsApp Channel</h1>
+    <p class="text-sm text-slate-500">How a DSA experiences IDBI: submit a lead on WhatsApp, get an <b>instant decision</b>, see tier &amp; payout. The relationship moat, in the partner's hand.</p>
+  </div>
+  <select id="ptrSel" class="border rounded-lg px-3 py-2 text-sm" onchange="resetChat()">
+    {% for p in partners %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+  </select>
+</div>
+
+<div class="flex justify-center">
+  <!-- phone frame -->
+  <div class="w-[380px] bg-black rounded-[2.2rem] p-2.5 shadow-2xl">
+    <div class="bg-[#e5ddd5] rounded-[1.8rem] overflow-hidden flex flex-col" style="height:640px">
+      <!-- wa header -->
+      <div class="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">🏦</div>
+        <div><div class="font-semibold text-sm">IDBI Prospect Assist</div>
+          <div class="text-[11px] opacity-80">online · replies instantly</div></div>
+      </div>
+      <!-- chat -->
+      <div id="waLog" class="flex-1 overflow-y-auto p-3 space-y-2" style="background-image:radial-gradient(#d9d0c7 1px,transparent 0);background-size:18px 18px"></div>
+      <!-- quick actions -->
+      <div class="px-2 py-2 bg-[#ece5dd] flex flex-wrap gap-1.5">
+        <button onclick="startLead()" class="text-[11px] bg-white text-[#075e54] border border-[#075e54] px-2.5 py-1 rounded-full">➕ Submit a lead</button>
+        <button onclick="checkTier()" class="text-[11px] bg-white text-[#075e54] border border-[#075e54] px-2.5 py-1 rounded-full">🏅 My tier &amp; payout</button>
+        <button onclick="resetChat()" class="text-[11px] bg-white text-slate-500 border px-2.5 py-1 rounded-full">↺ reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+const products = {{ products|tojson }};
+function waMsg(html, mine){ const log=document.getElementById('waLog');
+  log.innerHTML += mine
+    ? `<div class="flex justify-end"><div class="bg-[#dcf8c6] rounded-lg rounded-tr-none px-3 py-1.5 text-sm max-w-[80%] shadow-sm">${html}</div></div>`
+    : `<div class="flex justify-start"><div class="bg-white rounded-lg rounded-tl-none px-3 py-1.5 text-sm max-w-[85%] shadow-sm">${html}</div></div>`;
+  log.scrollTop=log.scrollHeight; }
+function ptr(){ return document.getElementById('ptrSel').value; }
+
+function resetChat(){ document.getElementById('waLog').innerHTML='';
+  waMsg('👋 Namaste! Send me a customer lead and I\'ll give you an <b>instant in-principle decision</b> to share with them right away. Tap <b>➕ Submit a lead</b>.'); }
+
+function startLead(){
+  const opts = Object.entries(products).map(([id,p])=>`<option value="${id}">${p.name}</option>`).join('');
+  waMsg('Sure — quick details for the lead:', false);
+  const log=document.getElementById('waLog');
+  const form=document.createElement('div');
+  form.className='flex justify-end';
+  form.innerHTML=`<div class="bg-[#dcf8c6] rounded-lg px-3 py-2 text-sm w-[85%] shadow-sm space-y-1.5">
+    <input id="ln" placeholder="Customer name" value="Suresh Nair" class="w-full border rounded px-2 py-1 text-xs">
+    <select id="lp" class="w-full border rounded px-2 py-1 text-xs">${opts}</select>
+    <div class="flex gap-1.5">
+      <input id="la" type="number" value="800000" placeholder="Amount" class="w-1/2 border rounded px-2 py-1 text-xs">
+      <input id="li" type="number" value="75000" placeholder="Income/mo" class="w-1/2 border rounded px-2 py-1 text-xs">
+    </div>
+    <div class="flex gap-1.5">
+      <input id="lc" type="number" value="740" placeholder="CIBIL" class="w-1/2 border rounded px-2 py-1 text-xs">
+      <input id="le" type="number" value="6000" placeholder="Existing EMI" class="w-1/2 border rounded px-2 py-1 text-xs">
+    </div>
+    <button onclick="sendLead()" class="w-full bg-[#075e54] text-white rounded py-1.5 text-xs font-semibold">Send to IDBI ⚡</button>
+  </div>`;
+  log.appendChild(form); log.scrollTop=log.scrollHeight;
+}
+
+async function sendLead(){
+  const fd=new FormData();
+  fd.append('partner_id',ptr()); fd.append('name',document.getElementById('ln').value);
+  fd.append('product_id',document.getElementById('lp').value);
+  fd.append('amount',document.getElementById('la').value);
+  fd.append('monthly_income',document.getElementById('li').value);
+  fd.append('credit_score',document.getElementById('lc').value);
+  fd.append('existing_emi',document.getElementById('le').value);
+  fd.append('bounces','0'); fd.append('regular_salary','yes');
+  waMsg('Lead sent ✓', true);
+  waMsg('<span class="text-slate-400">typing…</span>');
+  const t0=performance.now();
+  const r=await fetch('/submit',{method:'POST',body:fd}); const j=await r.json();
+  const ms=Math.round(performance.now()-t0); const d=j.decision;
+  const emoji=d.tone==='approve'?'✅':d.tone==='refer'?'🟡':'❌';
+  document.getElementById('waLog').lastChild.remove(); // remove typing
+  waMsg(`${emoji} <b>${d.verdict}</b><br>${d.product_name}<br>
+    💰 Up to <b>₹${d.indicative_amount.toLocaleString('en-IN')}</b> @ ${d.indicative_rate}%<br>
+    📅 EMI ₹${Math.round(d.indicative_emi).toLocaleString('en-IN')}/mo · ${d.tenure_months} mo<br>
+    <span class="text-xs text-slate-500">Decided in ${ms} ms · risk ${d.default_risk_band}</span>`);
+  waMsg(`Next: ${d.next_steps.join(' • ')}.<br><span class="text-[11px] text-slate-400">${d.disclaimer}</span>`);
+}
+
+async function checkTier(){
+  waMsg('My tier & payout?', true);
+  const r=await fetch(`/api/partner/${ptr()}/summary`); const s=await r.json();
+  waMsg(`🏅 You're a <b>${s.tier.tier}</b> partner (SLA ${s.sla_hours}h).<br>
+    • Commission boost: <b>+${s.tier.commission_boost_pct}%</b><br>
+    • Payout in <b>${s.tier.payout_days} days</b><br>
+    • Net payable now: <b>₹${Math.round(s.net_payable).toLocaleString('en-IN')}</b>${s.clawback>0?` (after ₹${Math.round(s.clawback).toLocaleString('en-IN')} clawback)`:''}<br>
+    ${s.tier.next_tier?`📈 Reach <b>${s.tier.next_tier}</b> in ${s.tier.points_to_next_tier} quality pts for better slabs.`:'⭐ Top tier — thank you!'}`);
+}
+resetChat();
+</script>
+{% endblock %}
+{% endblock %}

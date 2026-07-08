@@ -1,0 +1,22 @@
+# Prospect Assist AI — Layer 3 (execution) + web dependencies
+# Install:  python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+
+# Web / API
+fastapi>=0.139
+uvicorn[standard]>=0.50
+jinja2>=3.1
+python-multipart>=0.0.32
+
+# LLM (NVIDIA NIM via OpenAI-compatible SDK)
+openai>=2.0
+python-dotenv>=1.0
+
+# ML
+scikit-learn>=1.9
+pandas>=2.0
+numpy>=2.0
+joblib>=1.5
+
+# PDF (needs native pango+cairo; on macOS: `brew install pango`, and run with
+# DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib — see run.sh)
+weasyprint>=69

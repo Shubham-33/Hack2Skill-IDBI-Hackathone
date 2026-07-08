@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold text-idbi-dark">Channel Intelligence</h1>
+<p class="text-sm text-slate-500 mb-4">Partner quality, adverse-selection risk, channel ROI, duplicate leads &amp; churn — the moat.</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+  <!-- Partner leaderboard -->
+  <div class="lg:col-span-8 bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="px-4 py-2 bg-slate-50 text-sm font-semibold">Partner Leaderboard</div>
+    <table class="w-full text-sm">
+      <thead class="text-xs uppercase text-slate-500"><tr>
+        <th class="text-left px-4 py-2">Partner</th><th>Tier</th><th>Quality</th>
+        <th>Conv.</th><th>Default</th><th>TAT</th><th></th></tr></thead>
+      <tbody>
+        {% for p in partners[:12] %}
+        <tr class="border-t hover:bg-idbi-light/40 {{ 'bg-rose-50/60' if p.adverse_selection else '' }}">
+          <td class="px-4 py-2"><a href="/partner/{{ p.id }}" class="font-semibold text-idbi-dark hover:underline">{{ p.name }}</a>
+            {% if p.adverse_selection %}<span class="pill bg-rose-100 text-rose-700 ml-1">⚠ adverse</span>{% endif %}
+            <div class="text-xs text-slate-400">{{ p.type }} · {{ p.city }}</div></td>
+          <td class="text-center"><span class="pill {{ 'bg-idbi-light text-idbi-dark' if p.tier in ['Platinum','Gold'] else 'bg-slate-100 text-slate-600' }}">{{ p.tier }}</span></td>
+          <td class="text-center font-bold">{{ p.quality_score }}</td>
+          <td class="text-center">{{ (p.conversion_rate*100)|round|int }}%</td>
+          <td class="text-center {{ 'text-rose-600 font-semibold' if p.default_rate>=0.14 else '' }}">{{ (p.default_rate*100)|round|int }}%</td>
+          <td class="text-center">{{ p.avg_tat_days }}d</td>
+          <td class="pr-3 text-idbi text-xs">→</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="lg:col-span-4 space-y-4">
+    <!-- Channel ROI -->
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="text-sm font-semibold mb-2">Channel Mix ROI <span class="text-xs text-slate-400">(profit / lead)</span></div>
+      {% for r in roi %}
+      <div class="flex items-center gap-2 mb-1.5 text-xs">
+        <span class="w-20">{{ r.channel }}</span>
+        <div class="flex-1 bg-slate-100 rounded h-3"><div class="bg-idbi-accent h-3 rounded" style="width: {{ (r.profit_per_lead/roi[0].profit_per_lead*100)|round|int }}%"></div></div>
+        <span class="w-16 text-right font-semibold">₹{{ '{:,}'.format(r.profit_per_lead) }}</span>
+      </div>
+      {% endfor %}
+      <div class="text-xs text-slate-500 mt-1">Best: <b>{{ roi[0].channel }}</b> · Review: <b>{{ roi[-1].channel }}</b> (default drag)</div>
+    </div>
+
+    <!-- Portfolio concentration -->
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="flex items-center justify-between mb-1">
+        <div class="text-sm font-semibold">Book Concentration Risk</div>
+        <span class="pill {{ 'bg-rose-100 text-rose-700' if concentration.band=='High' else 'bg-amber-100 text-amber-700' if concentration.band=='Moderate' else 'bg-emerald-100 text-emerald-700' }}">{{ concentration.band }}</span>
+      </div>
+      <div class="flex gap-4 text-xs mb-2">
+        <div><span class="text-slate-400">HHI</span> <b class="text-idbi-dark">{{ concentration.hhi }}</b></div>
+        <div><span class="text-slate-400">Top-3 share</span> <b class="text-idbi-dark">{{ concentration.top3 }}%</b></div>
+      </div>
+      {% for tp in concentration.top_partners %}
+      <div class="flex items-center gap-2 text-xs mb-1">
+        <span class="w-28 truncate">{{ tp.name }}</span>
+        <div class="flex-1 bg-slate-100 rounded h-2"><div class="bg-idbi h-2 rounded" style="width: {{ tp.share }}%"></div></div>
+        <span class="w-8 text-right">{{ tp.share }}%</span>
+      </div>
+      {% endfor %}
+      <div class="text-xs text-slate-400 mt-1">HHI &gt; 2500 = concentrated. Diversify sourcing to cap single-partner exposure.</div>
+    </div>
+
+    <!-- Duplicates -->
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="text-sm font-semibold mb-2">Duplicate / Multi-sourced Leads <span class="pill bg-amber-100 text-amber-700">{{ dupes|length }}</span></div>
+      {% for d in dupes %}
+      <div class="text-xs border rounded p-2 mb-1">
+        <b>{{ d.name }}</b> — {{ d.count }}× via {{ d.partners|join(', ') }}
+        {% if d.cross_channel %}<span class="text-rose-600">⚠ cross-channel</span>{% endif %}
+        <div class="text-slate-400">{{ d.note }}</div>
+      </div>
+      {% else %}<div class="text-xs text-slate-400">None found.</div>{% endfor %}
+    </div>
+
+    <!-- Churn watchlist -->
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="text-sm font-semibold mb-2">Partner Churn Watchlist <span class="pill bg-rose-100 text-rose-700">{{ churn|length }}</span></div>
+      {% for c in churn[:5] %}
+      <div class="text-xs flex justify-between border-b py-1">
+        <a href="/partner/{{ c.partner_id }}" class="hover:underline">{{ c.name }}</a>
+        <span class="{{ 'text-rose-600' if c.band=='High' else 'text-amber-600' }}">{{ (c.churn_risk*100)|round|int }}% {{ c.band }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

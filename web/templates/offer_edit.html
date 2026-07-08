@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="/" class="text-sm text-idbi">← Back to queue</a>
+<h1 class="text-xl font-bold text-idbi-dark mt-1">Create Offer — {{ prospect.name }}</h1>
+<p class="text-sm text-slate-500 mb-4">AI drafted this offer. Edit any field — EMI &amp; eligibility re-validate instantly (numbers stay engine-bound).</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+  <div class="lg:col-span-7 bg-white rounded-xl shadow-sm p-5">
+    <form id="offerForm" class="space-y-3" data-pid="{{ prospect.id }}">
+      <label class="block text-sm">Product
+        <select name="product_id" class="w-full border rounded px-2 py-1.5 mt-1" onchange="recompute()">
+          {% for pid, p in products.items() %}
+          <option value="{{ pid }}" {{ 'selected' if pid==offer.product_id else '' }}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block text-sm">Amount (₹)
+          <input name="amount" type="number" value="{{ offer.offered_amount }}" class="w-full border rounded px-2 py-1.5 mt-1" oninput="recompute()"></label>
+        <label class="block text-sm">Rate (% p.a.)
+          <input name="rate" type="number" step="0.01" value="{{ offer.rate }}" class="w-full border rounded px-2 py-1.5 mt-1" oninput="recompute()"></label>
+        <label class="block text-sm">Tenure (months)
+          <input name="tenure_months" type="number" value="{{ offer.tenure_months }}" class="w-full border rounded px-2 py-1.5 mt-1" oninput="recompute()"></label>
+        <div class="block text-sm">Rate band
+          <div class="mt-2 text-xs text-slate-500">{{ offer.rate_band[0] }}% – {{ offer.rate_band[1] }}% allowed</div>
+          {% if offer.risk_premium and offer.risk_premium > 0 %}<div class="text-xs text-amber-600 mt-0.5">incl. +{{ offer.risk_premium }}% risk-based loading (model PD)</div>{% endif %}</div>
+      </div>
+      <div id="errors" class="text-xs text-rose-600 space-y-0.5"></div>
+    </form>
+  </div>
+
+  <div class="lg:col-span-5">
+    <div class="bg-white rounded-xl shadow-sm p-5 sticky top-20">
+      <div class="text-xs uppercase tracking-wide text-slate-400">Live computed offer</div>
+      <div class="mt-2 grid grid-cols-3 gap-2 text-center">
+        <div><div class="text-lg font-extrabold text-idbi">₹<span id="oAmount"></span></div><div class="text-xs text-slate-500">Amount</div></div>
+        <div><div class="text-lg font-extrabold text-idbi"><span id="oRate"></span>%</div><div class="text-xs text-slate-500">Rate</div></div>
+        <div><div class="text-lg font-extrabold text-idbi">₹<span id="oEmi"></span></div><div class="text-xs text-slate-500">EMI/mo</div></div>
+      </div>
+      <div class="mt-2 text-xs text-slate-500">Max eligible: ₹<span id="oMax"></span></div>
+      <button onclick="genPdf()" class="mt-4 w-full bg-idbi text-white rounded-lg py-2 font-semibold hover:bg-idbi-dark">📄 Generate Professional PDF Offer</button>
+      <label class="block text-xs text-slate-500 mt-3">Message language
+        <select id="lang" class="w-full border rounded px-2 py-1.5 mt-1 text-sm text-slate-700">
+          <option>English</option><option>Hindi</option><option>Hinglish</option>
+          <option>Tamil</option><option>Marathi</option><option>Telugu</option>
+        </select></label>
+      <button onclick="sendOffer()" class="mt-2 w-full border border-idbi text-idbi rounded-lg py-2 font-semibold hover:bg-idbi-light">Send to customer (WhatsApp / Email)</button>
+      <div id="sendBox" class="hidden mt-3 text-xs bg-slate-50 rounded p-2"></div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+const form=document.getElementById('offerForm'), pid=form.dataset.pid;
+function fd(){ return new FormData(form); }
+async function recompute(){
+  const r=await fetch(`/offer/${pid}/recompute`,{method:'POST',body:fd()});
+  const j=await r.json();
+  document.getElementById('oAmount').textContent=j.amount.toLocaleString('en-IN');
+  document.getElementById('oRate').textContent=j.rate;
+  document.getElementById('oEmi').textContent=Math.round(j.emi).toLocaleString('en-IN');
+  document.getElementById('oMax').textContent=j.max_eligible_amount.toLocaleString('en-IN');
+  document.getElementById('errors').innerHTML=(j.errors||[]).map(e=>'⚠ '+e).join('<br>');
+  // reflect auto-clamped values back into the form
+  form.amount.value=j.amount; form.rate.value=j.rate; form.tenure_months.value=j.tenure_months;
+}
+async function genPdf(){
+  const btn=event.target; const label=btn.textContent; btn.textContent='Generating…'; btn.disabled=true;
+  try{
+    const r=await fetch(`/offer/${pid}/pdf`,{method:'POST',body:fd()});
+    if(!r.ok) throw new Error('pdf failed');
+    const blob=await r.blob(); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener';
+    a.download=`IDBI_Offer_${pid}.pdf`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+  }catch(e){ alert('Could not generate the PDF. Check the server logs.'); }
+  finally{ btn.textContent=label; btn.disabled=false; }
+}
+async function sendOffer(){
+  const params=new URLSearchParams(new FormData(form));
+  params.set('language', document.getElementById('lang').value);
+  const r=await fetch(`/send/${pid}?`+params.toString()); const j=await r.json();
+  const box=document.getElementById('sendBox'); box.classList.remove('hidden');
+  box.innerHTML=`<b>WhatsApp:</b> ${j.pitch.whatsapp_text}<br>
+    <a class="text-idbi underline" target="_blank" href="${j.whatsapp_url}">Open WhatsApp</a> ·
+    <a class="text-idbi underline" target="_blank" href="${j.gmail_url}">Open Gmail</a>`;
+}
+recompute();
+</script>
+{% endblock %}
+{% endblock %}

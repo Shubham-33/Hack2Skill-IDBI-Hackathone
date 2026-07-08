@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ prospect.name }}{% endblock %}
+{% block content %}
+<a href="/" class="text-sm text-idbi">← Back to queue</a>
+<div class="flex items-start justify-between mt-1 mb-4">
+  <div>
+    <h1 class="text-2xl font-bold text-idbi-dark">{{ prospect.name }}</h1>
+    <p class="text-sm text-slate-500">{{ prospect.city }} · {{ prospect.occupation }} · Age {{ prospect.age }} · CIBIL {{ prospect.credit_score }}</p>
+  </div>
+  <a href="/offer/{{ prospect.id }}" class="bg-idbi text-white rounded-lg px-4 py-2 font-semibold hover:bg-idbi-dark">Create Offer →</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+  <!-- left: the working card -->
+  <div class="lg:col-span-5 bg-white rounded-xl shadow-sm p-6">
+    {% include "detail.html" %}
+  </div>
+
+  <!-- right: explainability + context -->
+  <div class="lg:col-span-7 space-y-4">
+    <!-- How ranked -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <h3 class="font-semibold text-idbi-dark mb-1">How this prospect is ranked</h3>
+      <p class="text-xs text-slate-500 mb-3">The queue is ordered by <b>risk-adjusted value</b> = P(convert) × (net interest income − expected credit loss), where expected loss = PD × LGD × exposure. The conversion component comes from a trained ML model — here's what drove <b>this</b> score. Nothing is a black box.</p>
+      <div class="flex items-center gap-4 mb-3">
+        <div class="text-center"><div class="text-3xl font-extrabold text-idbi">{{ (rec.propensity.propensity*100)|round|int }}%</div><div class="text-xs text-slate-500">P(convert) · {{ rec.propensity.tier }}</div></div>
+        <div class="flex-1">
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <div class="text-emerald-600 font-semibold mb-1">▲ Pushing it up</div>
+              {% for d in rec.propensity.drivers_up %}<div class="bg-emerald-50 rounded px-2 py-0.5 mb-0.5">{{ d }}</div>{% else %}<div class="text-slate-400">—</div>{% endfor %}
+            </div>
+            <div>
+              <div class="text-rose-600 font-semibold mb-1">▼ Holding it back</div>
+              {% for d in rec.propensity.drivers_down %}<div class="bg-rose-50 rounded px-2 py-0.5 mb-0.5">{{ d }}</div>{% else %}<div class="text-slate-400">—</div>{% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-decision reason codes (occlusion attribution vs a typical applicant) -->
+      {% if rec.propensity.reason_codes %}
+      <div class="border-t pt-3">
+        <div class="text-xs font-semibold text-slate-600 mb-1">Reason codes <span class="font-normal text-slate-400">— Δ P(convert) vs a typical applicant, per factor</span></div>
+        {% set rmax = rec.propensity.reason_codes[0].impact or 0.001 %}
+        {% for c in rec.propensity.reason_codes %}
+        <div class="flex items-center gap-2 text-xs mb-0.5">
+          <span class="w-40 truncate text-slate-600">{{ c.label }} <span class="text-slate-400">({{ c.value }})</span></span>
+          <div class="flex-1 flex items-center">
+            <div class="w-1/2 flex justify-end">{% if c.signed_impact < 0 %}<div class="bg-rose-400 h-2 rounded" style="width: {{ (c.impact/rmax*100)|round|int }}%"></div>{% endif %}</div>
+            <div class="w-px h-3 bg-slate-300"></div>
+            <div class="w-1/2">{% if c.signed_impact > 0 %}<div class="bg-emerald-400 h-2 rounded" style="width: {{ (c.impact/rmax*100)|round|int }}%"></div>{% endif %}</div>
+          </div>
+          <span class="w-12 text-right {{ 'text-emerald-600' if c.signed_impact>0 else 'text-rose-600' }}">{{ '%+.0f'|format(c.signed_impact*100) }} pt</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="text-xs bg-slate-50 rounded p-2 mt-3"><b>Default risk (partner-aware):</b> {{ risk.risk_band }} ({{ (risk.default_risk*100)|round|int }}%) — factors in the sourcing partner's track record to catch adverse selection before disbursal.
+        {% if risk.adverse_action_codes %}<div class="mt-1 text-slate-600"><b>Key risk factors:</b> {{ risk.adverse_action_codes|join('; ') }}.</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Financial snapshot -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <h3 class="font-semibold text-idbi-dark mb-2">Financial snapshot</h3>
+      <div class="grid grid-cols-3 gap-3 text-sm">
+        <div><div class="text-xs text-slate-500">Monthly income</div><div class="font-bold">₹{{ '{:,}'.format(prospect.monthly_income) }}</div></div>
+        <div><div class="text-xs text-slate-500">Existing EMI</div><div class="font-bold">₹{{ '{:,}'.format(prospect.existing_emi) }}</div></div>
+        <div><div class="text-xs text-slate-500">FOIR</div><div class="font-bold">{{ (prospect.foir*100)|round|int }}%</div></div>
+        <div><div class="text-xs text-slate-500">Avg balance</div><div class="font-bold">₹{{ '{:,}'.format(prospect.transactions.avg_balance) }}</div></div>
+        <div><div class="text-xs text-slate-500">Savings rate</div><div class="font-bold">{{ (prospect.transactions.savings_ratio*100)|round|int }}%</div></div>
+        <div><div class="text-xs text-slate-500">Bounces/mo</div><div class="font-bold">{{ prospect.transactions.monthly_bounces }}</div></div>
+      </div>
+    </div>
+
+    <!-- RM feedback (closed-loop learning) -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <h3 class="font-semibold text-idbi-dark mb-1">Log the outcome</h3>
+      <p class="text-xs text-slate-500 mb-2">Your call feeds the model — outcomes retrain propensity &amp; risk. This is the compounding data moat.</p>
+      <div class="flex gap-2">
+        <button onclick="logOutcome('won')" class="flex-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg py-2 text-sm font-semibold hover:bg-emerald-100">✅ Won</button>
+        <button onclick="logOutcome('lost')" class="flex-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg py-2 text-sm font-semibold hover:bg-rose-100">❌ Lost</button>
+        <button onclick="logOutcome('nurture')" class="flex-1 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg py-2 text-sm font-semibold hover:bg-slate-100">🌱 Nurture</button>
+      </div>
+      <div id="fbMsg" class="mt-2 text-xs text-idbi"></div>
+    </div>
+
+    <!-- Sourcing partner -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+      <h3 class="font-semibold text-idbi-dark mb-2">Sourcing partner</h3>
+      <div class="flex justify-between items-center">
+        <div><a href="/partner/{{ partner.id }}" class="font-semibold text-idbi hover:underline">{{ partner.name }}</a>
+          <div class="text-xs text-slate-500">{{ partner.type }} · {{ partner.city }} · {{ partner_tier.tier }} tier</div></div>
+        <div class="text-right text-xs text-slate-500">
+          <div>Conv {{ (partner.history.conversion_rate*100)|round|int }}% · Default {{ (partner.history.default_rate*100)|round|int }}%</div>
+          <div>SLA state: <b>{{ tat.sla_state }}</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block scripts %}
+<script>
+async function logOutcome(o){
+  const fd=new FormData(); fd.append('lead_id','{{ prospect.id }}'); fd.append('outcome',o);
+  const r=await fetch('/feedback',{method:'POST',body:fd}); const j=await r.json();
+  document.getElementById('fbMsg').textContent = j.ok
+    ? `✅ Logged "${o}". ${j.count} outcome(s) captured — feeding the next retrain.`
+    : '⚠ Could not log outcome.';
+}
+</script>
+{% endblock %}
+{% endblock %}

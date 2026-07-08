@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Compare Prospects{% endblock %}
+{% block content %}
+<a href="/" class="text-sm text-idbi">← Back to queue</a>
+<h1 class="text-xl font-bold text-idbi-dark mt-1 mb-4">Compare Prospects</h1>
+
+{% if cols|length < 2 %}
+<div class="bg-white rounded-xl shadow-sm p-6 text-slate-500">
+  Select 2–4 prospects from the dashboard (tick the boxes) and click <b>Compare</b>, or ask the assistant "compare Kavya and Deepa".
+</div>
+{% else %}
+{% set best_prop = cols|map(attribute='propensity')|max %}
+{% set best_health = cols|map(attribute='health')|max %}
+{% set low_risk = cols|map(attribute='risk')|min %}
+<div class="bg-white rounded-xl shadow-sm overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead><tr class="bg-idbi-dark text-white">
+      <th class="text-left px-4 py-3 w-56">Metric</th>
+      {% for c in cols %}<th class="px-4 py-3 text-center"><a href="/prospect/{{ c.id }}" class="hover:underline">{{ c.name }}</a>
+        <div class="text-xs opacity-70 font-normal">{{ c.city }} · {{ c.channel }}</div></th>{% endfor %}
+    </tr></thead>
+    <tbody>
+      {% macro row(label, key, fmt='') %}
+      <tr class="border-t">
+        <td class="px-4 py-2 text-slate-500">{{ label }}</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center {{ caller(c) }}">{{ fmt }}</td>{% endfor %}
+      </tr>
+      {% endmacro %}
+
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Conversion propensity</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center font-bold {{ 'bg-idbi-light text-idbi-dark' if c.propensity==best_prop else '' }}">{{ (c.propensity*100)|round|int }}% <span class="text-xs font-normal">{{ c.tier }}</span></td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Financial health</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center font-semibold {{ 'bg-idbi-light' if c.health==best_health else '' }}">{{ c.health }}/100 <span class="text-xs text-slate-400">{{ c.health_band }}</span></td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Default risk</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center {{ 'bg-emerald-50 font-semibold' if c.risk==low_risk else '' }}"><span class="pill {{ 'bg-rose-100 text-rose-700' if c.risk_band=='High' else 'bg-amber-100 text-amber-700' if c.risk_band=='Medium' else 'bg-emerald-100 text-emerald-700' }}">{{ c.risk_band }}</span> {{ (c.risk*100)|round|int }}%</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">CIBIL</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center">{{ c.credit }}</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Monthly income</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center">₹{{ '{:,}'.format(c.income) }}</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">FOIR</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center">{{ (c.foir*100)|round|int }}%</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Best product</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center text-xs">{{ c.product }}</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Eligible amount</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center font-semibold">₹{{ '{:,}'.format(c.amount) }}</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Rate / EMI</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center">{{ c.rate }}% · ₹{{ '{:,.0f}'.format(c.emi) }}/mo</td>{% endfor %}</tr>
+      <tr class="border-t"><td class="px-4 py-2 text-slate-500">Sourcing partner</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center text-xs">{{ c.partner }}</td>{% endfor %}</tr>
+      <tr class="border-t bg-slate-50"><td class="px-4 py-2 text-slate-500 font-semibold">Recommended action</td>
+        {% for c in cols %}<td class="px-4 py-2 text-center">
+          {% if c.propensity==best_prop %}<span class="pill bg-idbi text-white">Call first</span>
+          {% elif c.risk_band=='High' %}<span class="pill bg-rose-100 text-rose-700">Verify risk</span>
+          {% else %}<span class="pill bg-slate-100 text-slate-600">Nurture</span>{% endif %}</td>{% endfor %}</tr>
+    </tbody>
+  </table>
+</div>
+<p class="text-xs text-slate-400 mt-2">Highlights: best conversion &amp; health in teal, lowest default risk in green.</p>
+{% endif %}
+{% endblock %}

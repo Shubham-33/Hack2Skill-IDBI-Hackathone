@@ -1,0 +1,155 @@
+[
+  {
+    "id": "home_loan",
+    "name": "IDBI Home Loan",
+    "category": "Secured",
+    "min_amount": 500000,
+    "max_amount": 15000000,
+    "min_tenure_m": 60,
+    "max_tenure_m": 360,
+    "base_rate": 8.4,
+    "rate_spread": 1.8,
+    "min_income": 30000,
+    "min_credit": 700,
+    "max_foir": 0.55,
+    "commission_pct": 0.5,
+    "channels": [
+      "Builder",
+      "DSA",
+      "Connector"
+    ]
+  },
+  {
+    "id": "lap",
+    "name": "IDBI Loan Against Property",
+    "category": "Secured",
+    "min_amount": 500000,
+    "max_amount": 20000000,
+    "min_tenure_m": 60,
+    "max_tenure_m": 180,
+    "base_rate": 9.5,
+    "rate_spread": 2.2,
+    "min_income": 40000,
+    "min_credit": 720,
+    "max_foir": 0.55,
+    "commission_pct": 0.9,
+    "channels": [
+      "DSA",
+      "Connector"
+    ]
+  },
+  {
+    "id": "auto_loan",
+    "name": "IDBI Auto Loan",
+    "category": "Secured",
+    "min_amount": 200000,
+    "max_amount": 3000000,
+    "min_tenure_m": 12,
+    "max_tenure_m": 84,
+    "base_rate": 9.1,
+    "rate_spread": 2.0,
+    "min_income": 25000,
+    "min_credit": 680,
+    "max_foir": 0.5,
+    "commission_pct": 1.2,
+    "channels": [
+      "Dealer",
+      "DSA"
+    ]
+  },
+  {
+    "id": "two_wheeler",
+    "name": "IDBI Two-Wheeler Loan",
+    "category": "Secured",
+    "min_amount": 40000,
+    "max_amount": 300000,
+    "min_tenure_m": 12,
+    "max_tenure_m": 48,
+    "base_rate": 11.5,
+    "rate_spread": 3.0,
+    "min_income": 15000,
+    "min_credit": 650,
+    "max_foir": 0.5,
+    "commission_pct": 2.0,
+    "channels": [
+      "Dealer"
+    ]
+  },
+  {
+    "id": "personal_loan",
+    "name": "IDBI Personal Loan",
+    "category": "Unsecured",
+    "min_amount": 50000,
+    "max_amount": 2000000,
+    "min_tenure_m": 12,
+    "max_tenure_m": 72,
+    "base_rate": 11.0,
+    "rate_spread": 5.0,
+    "min_income": 25000,
+    "min_credit": 700,
+    "max_foir": 0.5,
+    "commission_pct": 2.5,
+    "channels": [
+      "DSA",
+      "Connector",
+      "Aggregator"
+    ]
+  },
+  {
+    "id": "business_loan",
+    "name": "IDBI MSME / Business Loan",
+    "category": "Unsecured",
+    "min_amount": 100000,
+    "max_amount": 5000000,
+    "min_tenure_m": 12,
+    "max_tenure_m": 84,
+    "base_rate": 12.0,
+    "rate_spread": 4.5,
+    "min_income": 40000,
+    "min_credit": 710,
+    "max_foir": 0.55,
+    "commission_pct": 2.0,
+    "channels": [
+      "DSA",
+      "Connector"
+    ]
+  },
+  {
+    "id": "education_loan",
+    "name": "IDBI Education Loan",
+    "category": "Secured",
+    "min_amount": 100000,
+    "max_amount": 4000000,
+    "min_tenure_m": 24,
+    "max_tenure_m": 180,
+    "base_rate": 9.8,
+    "rate_spread": 2.5,
+    "min_income": 20000,
+    "min_credit": 670,
+    "max_foir": 0.6,
+    "commission_pct": 0.8,
+    "channels": [
+      "Connector",
+      "DSA"
+    ]
+  },
+  {
+    "id": "gold_loan",
+    "name": "IDBI Gold Loan",
+    "category": "Secured",
+    "min_amount": 20000,
+    "max_amount": 2500000,
+    "min_tenure_m": 6,
+    "max_tenure_m": 36,
+    "base_rate": 9.0,
+    "rate_spread": 2.5,
+    "min_income": 10000,
+    "min_credit": 600,
+    "max_foir": 0.6,
+    "commission_pct": 1.0,
+    "channels": [
+      "DSA",
+      "Aggregator"
+    ]
+  }
+]

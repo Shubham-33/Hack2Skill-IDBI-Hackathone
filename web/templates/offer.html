@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #1f2933; font-size: 12px; line-height: 1.5; }
+  .sheet { padding: 0 0 40px; }
+  .band { height: 8px; background: linear-gradient(90deg,#0a7d6b,#0f9d5a); }
+  header { display: flex; justify-content: space-between; align-items: flex-start;
+           padding: 26px 40px 18px; border-bottom: 1px solid #e4e7eb; }
+  .brand { font-size: 22px; font-weight: 800; color: #0a7d6b; letter-spacing: .5px; }
+  .brand small { display:block; font-size: 10px; font-weight:600; color:#7b8794; letter-spacing:2px; }
+  .meta { text-align: right; font-size: 10.5px; color: #52606d; }
+  .meta b { color:#1f2933; }
+  h1 { font-size: 15px; color:#0a3d33; margin: 24px 40px 4px; }
+  .sub { margin: 0 40px 16px; color:#52606d; font-size:11px; }
+  .greet { margin: 0 40px 14px; }
+  section { margin: 0 40px 16px; }
+  .card { border:1px solid #e4e7eb; border-radius:10px; overflow:hidden; }
+  .card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+             background:#f0f4f3; color:#0a5d4f; padding:9px 14px; border-bottom:1px solid #e4e7eb; }
+  table { width:100%; border-collapse: collapse; }
+  td { padding: 9px 14px; border-bottom:1px solid #eef1f4; }
+  td.k { color:#616e7c; width:52%; }
+  td.v { text-align:right; font-weight:700; color:#1f2933; }
+  .hero { display:flex; gap:10px; margin:0 40px 18px; }
+  .hero .box { flex:1; border:1px solid #e4e7eb; border-radius:10px; padding:12px 14px; text-align:center; }
+  .hero .box .lbl { font-size:9.5px; text-transform:uppercase; letter-spacing:1px; color:#7b8794; }
+  .hero .box .num { font-size:19px; font-weight:800; color:#0a7d6b; margin-top:4px; }
+  ul.benefits { list-style:none; }
+  ul.benefits li { padding:5px 0 5px 20px; position:relative; }
+  ul.benefits li:before { content:"✓"; position:absolute; left:0; color:#0f9d5a; font-weight:800; }
+  .tc { font-size:10px; color:#616e7c; }
+  .tc li { margin:3px 0 3px 16px; }
+  .cta { margin:6px 40px 0; background:#0a7d6b; color:#fff; border-radius:10px; padding:14px 18px; }
+  .cta b { font-size:13px; }
+  .steps { margin-top:6px; font-size:11px; color:#dff3ee; }
+  footer { margin:22px 40px 0; padding-top:12px; border-top:1px solid #e4e7eb;
+           font-size:9px; color:#9aa5b1; }
+  .disc { font-style: italic; }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="band"></div>
+  <header>
+    <div class="brand">IDBI BANK<small>PROSPECT ASSIST AI</small></div>
+    <div class="meta">
+      Offer Ref: <b>{{ ref }}</b><br>
+      Date: <b>{{ date }}</b><br>
+      Prepared by RM: <b>{{ rm_name }}</b>
+    </div>
+  </header>
+
+  <h1>Personalised Loan Offer — {{ product_name }}</h1>
+  <div class="sub">Prepared exclusively for {{ customer_name }} · {{ city }}</div>
+
+  <p class="greet">Dear {{ first_name }},</p>
+  <section style="margin-top:0">{{ intro }}</section>
+
+  <div class="hero">
+    <div class="box"><div class="lbl">Loan Amount</div><div class="num">₹{{ '{:,}'.format(amount) }}</div></div>
+    <div class="box"><div class="lbl">Interest Rate</div><div class="num">{{ rate }}%</div></div>
+    <div class="box"><div class="lbl">Monthly EMI</div><div class="num">₹{{ '{:,.0f}'.format(emi) }}</div></div>
+  </div>
+
+  <section>
+    <div class="card">
+      <h2>Offer Summary</h2>
+      <table>
+        <tr><td class="k">Product</td><td class="v">{{ product_name }}</td></tr>
+        <tr><td class="k">Sanctioned Amount (indicative)</td><td class="v">₹{{ '{:,}'.format(amount) }}</td></tr>
+        <tr><td class="k">Interest Rate (p.a., reducing)</td><td class="v">{{ rate }}%</td></tr>
+        <tr><td class="k">Tenure</td><td class="v">{{ tenure_months }} months</td></tr>
+        <tr><td class="k">Monthly EMI</td><td class="v">₹{{ '{:,.0f}'.format(emi) }}</td></tr>
+        <tr><td class="k">Processing Fee (est.)</td><td class="v">₹{{ '{:,.0f}'.format(processing_fee) }}</td></tr>
+        <tr><td class="k">Total Repayable (approx.)</td><td class="v">₹{{ '{:,.0f}'.format(total_repayable) }}</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>Why this suits you</h2>
+      <div style="padding:12px 14px">
+        <ul class="benefits">
+          {% for b in benefits %}<li>{{ b }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {% if alternatives %}
+  <section>
+    <div class="card">
+      <h2>You may also qualify for</h2>
+      <table>
+        <tr style="background:#fafbfb"><td class="k" style="font-weight:600;color:#52606d">Product</td>
+          <td class="v" style="color:#52606d;font-weight:600">Up to</td>
+          <td class="v" style="color:#52606d;font-weight:600">Rate</td>
+          <td class="v" style="color:#52606d;font-weight:600">EMI</td></tr>
+        {% for a in alternatives %}
+        <tr><td class="k">{{ a.name }}</td>
+          <td class="v">₹{{ '{:,}'.format(a.amount) }}</td>
+          <td class="v">{{ a.rate }}%</td>
+          <td class="v">₹{{ '{:,.0f}'.format(a.emi) }}/mo</td></tr>
+        {% endfor %}
+      </table>
+      <div style="padding:8px 14px;font-size:10px;color:#9aa5b1">Indicative cross-sell options based on your eligibility. Ask your RM for details.</div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section>
+    <div class="card">
+      <h2>Key Terms &amp; Conditions</h2>
+      <div style="padding:10px 14px">
+        <ul class="tc">
+          {% for t in terms %}<li>{{ t }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <b>Next steps to proceed</b>
+    <div class="steps">{{ next_steps | join('  •  ') }}</div>
+  </div>
+
+  <footer>
+    <p class="disc">{{ disclaimer }}</p>
+    <p style="margin-top:6px">IDBI Bank Ltd. · Generated by Prospect Assist AI · This is a system-generated
+    indicative offer and does not constitute a sanction letter. All figures are computed by IDBI's
+    deterministic pricing engine.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Prospect Assist AI{% endblock %} · IDBI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    idbi: { DEFAULT:'#0a7d6b', dark:'#0a3d33', light:'#e6f4f1', accent:'#0f9d5a' },
+  }}}}
+</script>
+<style>
+  body { background:#f4f7f6; }
+  .pill { font-size:11px; padding:2px 8px; border-radius:999px; font-weight:600; }
+  ::-webkit-scrollbar{width:8px;height:8px} ::-webkit-scrollbar-thumb{background:#cbd5d1;border-radius:8px}
+</style>
+</head>
+<body class="text-slate-800">
+<nav class="bg-idbi-dark text-white px-6 py-3 flex items-center gap-6 sticky top-0 z-20 shadow">
+  <a href="/" class="font-extrabold text-lg tracking-wide">IDBI <span class="text-idbi-accent">Prospect Assist AI</span></a>
+  <div class="flex gap-1 text-sm">
+    <a href="/" class="px-3 py-1.5 rounded hover:bg-white/10">Prospects</a>
+    <a href="/channel" class="px-3 py-1.5 rounded hover:bg-white/10">Channel Intelligence</a>
+    <a href="/submit" class="px-3 py-1.5 rounded hover:bg-white/10">Submit Lead</a>
+    <a href="/partner-portal" class="px-3 py-1.5 rounded hover:bg-white/10">Partner Portal</a>
+  </div>
+  <div class="ml-auto flex items-center gap-3">
+    <a href="/deck" target="_blank" class="text-xs bg-idbi-accent px-3 py-1.5 rounded font-semibold hover:brightness-110">▶ Pitch Deck</a>
+    <span class="text-xs opacity-80 hidden lg:inline">Lend faster, safer &amp; win partner loyalty</span>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto p-6">{% block content %}{% endblock %}</main>
+
+<!-- Agentic assistant -->
+<button id="chatBtn" onclick="toggleChat()"
+  class="fixed bottom-5 right-5 z-30 bg-idbi hover:bg-idbi-dark text-white rounded-full pl-4 pr-5 py-3 shadow-xl flex items-center gap-2 font-semibold">
+  <span class="text-xl">🤖</span> AI Assistant</button>
+<div id="chatPanel" class="hidden fixed bottom-24 right-5 z-30 w-[27rem] max-w-[95vw] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col" style="height:32rem">
+  <div class="bg-idbi-dark text-white px-4 py-3 rounded-t-2xl flex justify-between items-center">
+    <div><div class="font-semibold text-sm">Prospect Assist — AI Copilot</div>
+      <div class="text-[11px] opacity-70">Create leads · pull any detail · generate offers</div></div>
+    <button onclick="toggleChat()" class="opacity-70 hover:opacity-100 text-lg">✕</button>
+  </div>
+  <div id="chatLog" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm bg-slate-50"></div>
+  <div class="px-3 pt-2 flex flex-wrap gap-1.5 border-t bg-white">
+    {% for chip in ["Create a lead for Ramesh, home loan 50 lakh, income 1.2 lakh, CIBIL 760","Top 5 prospects","Which partners are at churn risk","Best channel ROI"] %}
+    <button onclick="ask(this.dataset.q)" data-q="{{ chip }}" class="text-[11px] bg-idbi-light text-idbi-dark px-2 py-1 rounded-full hover:bg-idbi hover:text-white">{{ chip.split(',')[0] if 'Create' in chip else chip }}</button>
+    {% endfor %}
+  </div>
+  <form onsubmit="return sendChat(event)" class="p-2.5 flex gap-2 bg-white rounded-b-2xl">
+    <input id="chatIn" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="Ask or command… e.g. create a lead / show Kavya" autocomplete="off">
+    <button class="bg-idbi text-white px-4 rounded-lg text-sm font-semibold">Send</button>
+  </form>
+</div>
+<script>
+  function toggleChat(){ const p=document.getElementById('chatPanel'); p.classList.toggle('hidden');
+    if(!p.classList.contains('hidden')) document.getElementById('chatIn').focus(); }
+  function ask(q){ if(document.getElementById('chatPanel').classList.contains('hidden')) toggleChat();
+    document.getElementById('chatIn').value=q; sendChat(new Event('x')); }
+  function bubble(html, mine){ const log=document.getElementById('chatLog');
+    log.innerHTML+=mine
+      ? `<div class="text-right"><span class="inline-block bg-idbi text-white px-3 py-1.5 rounded-2xl">${html}</span></div>`
+      : `<div><div class="inline-block bg-white border px-3 py-2 rounded-2xl whitespace-pre-line max-w-[92%]">${html}</div></div>`;
+    log.scrollTop=log.scrollHeight; }
+  // reliably open a PDF blob (dodges popup blockers — user-gesture triggered)
+  function openBlob(blob, name){ const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener';
+    a.download=name||'IDBI_Offer.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 30000); }
+  function actionBtn(a){ const b=document.createElement('button');
+    b.className='mx-1 my-1 text-xs bg-idbi text-white px-3 py-1.5 rounded-lg hover:bg-idbi-dark';
+    b.textContent=a.label; b.onclick=()=>runAction(a);
+    const w=document.createElement('div'); w.appendChild(b); document.getElementById('chatLog').appendChild(w); }
+  async function runAction(a){
+    if(a.type==='link'){ window.location=a.payload.url; return; }
+    if(a.type==='pdf'){
+      bubble('Generating PDF offer…');
+      const r=await fetch('/lead/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a.payload)});
+      if(r.ok){ openBlob(await r.blob(), 'IDBI_Offer.pdf'); bubble('✅ PDF offer opened/downloaded.'); }
+      else bubble('⚠ Could not generate the PDF.');
+    }
+    if(a.type==='save'){
+      bubble('Saving to pipeline…');
+      const r=await fetch('/lead/save-json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a.payload)});
+      const j=await r.json();
+      if(j.ok){ bubble(`✅ Saved to pipeline as <b>${j.id}</b> — it now appears ranked in the queue.`);
+        actionBtn({label:`Open ${j.id}`, type:'link', payload:{url:j.url}}); }
+      else bubble('⚠ Could not save the lead.');
+    }
+  }
+  async function sendChat(e){
+    e.preventDefault();
+    const inp=document.getElementById('chatIn'); const msg=inp.value.trim(); if(!msg) return false; inp.value='';
+    bubble(msg, true);
+    const fd=new FormData(); fd.append('message',msg);
+    const r=await fetch('/chat',{method:'POST',body:fd}); const j=await r.json();
+    bubble(j.answer||'…');
+    (j.actions||[]).forEach(actionBtn);
+    document.getElementById('chatLog').scrollTop=1e9; return false;
+  }
+  window.addEventListener('DOMContentLoaded',()=>bubble('Hi! I can <b>create leads</b>, pull <b>any prospect/partner detail</b>, check eligibility, and <b>generate PDF offers</b>. Try a chip below or just type.'));
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
