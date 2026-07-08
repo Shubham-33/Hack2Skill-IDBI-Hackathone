@@ -11,10 +11,10 @@ python-multipart>=0.0.32
 openai>=2.0
 python-dotenv>=1.0
 
-# ML
-scikit-learn>=1.9
-pandas>=2.0
-numpy>=2.0
+# ML — scikit-learn pinned so the committed model pickles (data/*.pkl) load on any host
+scikit-learn==1.9.0
+numpy==2.5.1
+scipy==1.18.0
 joblib>=1.5
 
 # PDF (needs native pango+cairo; on macOS: `brew install pango`, and run with

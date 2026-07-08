@@ -1,0 +1,12 @@
+# Render.com Blueprint — one-click deploy.
+# In Render: New → Blueprint → point at this repo. Set NVIDIA_API_KEY in the dashboard.
+services:
+  - type: web
+    name: prospect-assist-ai
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false          # set this secret in the Render dashboard (optional; app degrades gracefully)

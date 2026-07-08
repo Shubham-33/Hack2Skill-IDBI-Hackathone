@@ -1,0 +1,12 @@
+.venv/
+.git/
+.tmp/
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+.DS_Store
+.env
+*.pptx
+.tmp/shots/
+node_modules/
